@@ -183,25 +183,25 @@ class _WatchItState {
       _appendWatch(watch, allowMultipleSubscribers: true);
       // we have to set `allowMultipleSubscribers=true` because we can't differentiate
       // one selector function from another.
-    }
 
-    handler() {
-      if (_element == null) {
-        /// it seems it can happen that a handler is still
-        /// registered even after dispose was called
-        /// to protect against this we just
-        return;
+      handler() {
+        if (_element == null) {
+          /// it seems it can happen that a handler is still
+          /// registered even after dispose was called
+          /// to protect against this we just
+          return;
+        }
+        final newValue = only(listenable);
+        if (watch!.lastValue != newValue) {
+          _element!.markNeedsBuild();
+          watch.lastValue = newValue;
+        }
       }
-      final newValue = only(listenable);
-      if (watch!.lastValue != newValue) {
-        _element!.markNeedsBuild();
-        watch.lastValue = newValue;
-      }
+
+      watch.notificationHandler = handler;
+
+      listenable.addListener(handler);
     }
-
-    watch.notificationHandler = handler;
-
-    listenable.addListener(handler);
   }
 
   AsyncSnapshot<R> watchStream<T extends Stream<R>, R>({
